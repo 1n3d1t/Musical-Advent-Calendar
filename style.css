@@ -19,8 +19,15 @@ h1 {
     font-size: 2.5em;
     color: white;
     text-transform: uppercase;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000; /* Aumenta el outline */
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1em;
+    color: white;
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-    margin-bottom: 20px;
+    margin-top: 0;
 }
 
 /* Calendario */
@@ -97,4 +104,41 @@ h1 {
 }
 
 @keyframes glow {
-    from { box-shadow: 0 0 10px #ff6
+    from { box-shadow: 0 0 10px #ff6666; }
+    to { box-shadow: 0 0 20px #ff6666; }
+}
+
+/* Ventana emergente */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 10;
+}
+
+.popup img {
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+}
+
+.popup button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background: #ff6666;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.popup button:hover {
+    background: #b22222;
+}

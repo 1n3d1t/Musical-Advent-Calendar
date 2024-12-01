@@ -29,6 +29,7 @@ const songs = {
     24: { name: "A Kiss to Build a Dream On", artist: "Tony Bennett, k.d. lang", link: "https://open.spotify.com/intl-es/track/4xsJ6KEsIjsHKWJA7D8GAI?si=8a17c820d3d04004" },
 };
 
+
 // Crear el calendario
 const grid = document.getElementById("calendar-grid");
 
@@ -45,23 +46,27 @@ for (let i = 0; i < 24; i++) {
     square.setAttribute("aria-label", `Día ${day}`);
 
     square.addEventListener("click", async () => {
-        const song = songs[day];
-        if (song) {
-            const songData = await getSongData(song.link);
-            if (songData) {
-                // Cerrar ventana emergente existente
-                const existingPopup = document.querySelector(".popup");
-                if (existingPopup) {
-                    document.body.removeChild(existingPopup);
+        if (new Date().getDate() >= day) {
+            const song = songs[day];
+            if (song) {
+                const songData = await getSongData(song.link);
+                if (songData) {
+                    // Cerrar ventana emergente existente
+                    const existingPopup = document.querySelector(".popup");
+                    if (existingPopup) {
+                        document.body.removeChild(existingPopup);
+                    }
+                    showPopup(song.name, song.artist, song.link, songData.album.images[0].url);
+                    square.classList.add("clicked");
+                    square.innerHTML = `<div class="thumbnail"><img src="${songData.album.images[0].url}" alt="Portada de ${song.name}"></div>${day}`;
+                } else {
+                    alert("No se encontró la canción.");
                 }
-                showPopup(song.name, song.artist, song.link, songData.album.images[0].url);
-                square.classList.add("clicked");
-                square.innerHTML = `<div class="thumbnail"><img src="${songData.album.images[0].url}" alt="Portada de ${song.name}"></div>${day}`;
             } else {
-                alert("No se encontró la canción.");
+                alert("No hay canción asignada a este día.");
             }
         } else {
-            alert("No hay canción asignada a este día.");
+            alert("¡No puedes abrir este día todavía!");
         }
     });
 
