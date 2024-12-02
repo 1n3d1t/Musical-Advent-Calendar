@@ -29,13 +29,39 @@ const songs = {
     24: { name: "A Kiss to Build a Dream On", artist: "Tony Bennett, k.d. lang", link: "https://open.spotify.com/intl-es/track/4xsJ6KEsIjsHKWJA7D8GAI?si=8a17c820d3d04004" },
 };
 
-
 // Crear el calendario
 const grid = document.getElementById("calendar-grid");
 
 // Generar días desordenados
-const days = Array.from({ length: 24 }, (_, i) => i + 1);
-days.sort(() => Math.random() - 0.5);
+let days = Array.from({ length: 24 }, (_, i) => i + 1);
+
+// Recuperar el orden aleatorio desde localStorage
+const storedOrder = localStorage.getItem("calendarOrder");
+if (storedOrder) {
+    days = JSON.parse(storedOrder);
+} else {
+    days.sort(() => Math.random() - 0.5);
+    localStorage.setItem("calendarOrder", JSON.stringify(days));
+}
+
+// Función para mostrar miniaturas de los días que ya han pasado
+async function showThumbnailsForPastDays() {
+    const currentDay = new Date().getDate();
+    for (let i = 0; i < 24; i++) {
+        const day = days[i];
+        if (day < currentDay) {
+            const song = songs[day];
+            if (song) {
+                const songData = await getSongData(song.link);
+                if (songData) {
+                    const square = grid.children[i];
+                    square.classList.add("clicked");
+                    square.innerHTML = `<div class="thumbnail"><img src="${songData.album.images[0].url}" alt="Portada de ${song.name}"></div>${day}`;
+                }
+            }
+        }
+    }
+}
 
 for (let i = 0; i < 24; i++) {
     const day = days[i];
@@ -72,6 +98,9 @@ for (let i = 0; i < 24; i++) {
 
     grid.appendChild(square);
 }
+
+// Mostrar miniaturas de los días que ya han pasado al cargar la página
+showThumbnailsForPastDays();
 
 // Mostrar ventana emergente
 function showPopup(songName, artist, songLink, songImage) {
@@ -121,4 +150,51 @@ async function getSongData(link) {
     });
     const data = await response.json();
     return data;
+}
+
+// Funcionalidades de puntuación, comentarios y compartir en redes sociales
+const feedbackSection = document.createElement("div");
+feedbackSection.className = "feedback-section";
+feedbackSection.innerHTML = `
+    <div>
+        <label for="app-rating">Puntuación de la aplicación:</label>
+        <select id="app-rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+        <button onclick="saveAppRating()">Guardar Puntuación</button>
+    </div>
+    <div>
+        <label for="app-comment">Comentario sobre la aplicación:</label>
+        <textarea id="app-comment" rows="4" cols="50"></textarea>
+        <button onclick="saveAppComment()">Guardar Comentario</button>
+    </div>
+    <div>
+        <button onclick="shareAppOnSocialMedia()">Compartir en Redes Sociales</button>
+    </div>
+`;
+document.body.appendChild(feedbackSection);
+
+// Guardar puntuación de la aplicación
+function saveAppRating() {
+    const rating = document.getElementById("app-rating").value;
+    localStorage.setItem("appRating", rating);
+    alert("Puntuación de la aplicación guardada.");
+}
+
+// Guardar comentario sobre la aplicación
+function saveAppComment() {
+    const comment = document.getElementById("app-comment").value;
+    localStorage.setItem("appComment", comment);
+    alert("Comentario sobre la aplicación guardado.");
+}
+
+// Compartir la aplicación en redes sociales
+function shareAppOnSocialMedia() {
+    const text = `¡Mira esta increíble aplicación de calendario de adviento musical!`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
+    window.open(url, "_blank");
 }
