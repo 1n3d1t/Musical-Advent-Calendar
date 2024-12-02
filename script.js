@@ -44,20 +44,34 @@ if (storedOrder) {
     localStorage.setItem("calendarOrder", JSON.stringify(days));
 }
 
-// Función para mostrar miniaturas de los días que ya han pasado
-async function showThumbnailsForPastDays() {
+// Función para destacar los días que ya han pasado
+async function highlightPastDays() {
     const currentDay = new Date().getDate();
     for (let i = 0; i < 24; i++) {
         const day = days[i];
+        const square = grid.children[i];
         if (day < currentDay) {
             const song = songs[day];
             if (song) {
-                const songData = await getSongData(song.link);
-                if (songData) {
-                    const square = grid.children[i];
-                    square.classList.add("clicked");
-                    square.innerHTML = `<div class="thumbnail"><img src="${songData.album.images[0].url}" alt="Portada de ${song.name}"></div>${day}`;
+                try {
+                    const songData = await getSongData(song.link);
+                    if (songData) {
+                        square.innerHTML = `
+                            <div class="thumbnail">
+                                <img src="${songData.album.images[0].url}" alt="Portada de ${song.name}">
+                            </div>
+                            ${day}
+                        `;
+                        square.classList.add("past-day", "clicked");
+                    }
+                } catch (error) {
+                    console.error(`Error fetching song data for day ${day}:`, error);
+                    square.classList.add("past-day");
+                    square.style.color = "white";
                 }
+            } else {
+                square.classList.add("past-day");
+                square.style.color = "white";
             }
         }
     }
@@ -99,8 +113,14 @@ for (let i = 0; i < 24; i++) {
     grid.appendChild(square);
 }
 
-// Mostrar miniaturas de los días que ya han pasado al cargar la página
-showThumbnailsForPastDays();
+// Llamar a highlightPastDays al cargar la página
+document.addEventListener('DOMContentLoaded', async () => {
+    await highlightPastDays();
+});
+
+
+// Destacar los días que ya han pasado al cargar la página
+highlightPastDays();
 
 // Mostrar ventana emergente
 function showPopup(songName, artist, songLink, songImage) {
@@ -152,49 +172,30 @@ async function getSongData(link) {
     return data;
 }
 
-// Funcionalidades de puntuación, comentarios y compartir en redes sociales
+// Funcionalidad de compartir en redes sociales
 const feedbackSection = document.createElement("div");
 feedbackSection.className = "feedback-section";
 feedbackSection.innerHTML = `
-    <div>
-        <label for="app-rating">Puntuación de la aplicación:</label>
-        <select id="app-rating">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-        <button onclick="saveAppRating()">Guardar Puntuación</button>
-    </div>
-    <div>
-        <label for="app-comment">Comentario sobre la aplicación:</label>
-        <textarea id="app-comment" rows="4" cols="50"></textarea>
-        <button onclick="saveAppComment()">Guardar Comentario</button>
-    </div>
     <div>
         <button onclick="shareAppOnSocialMedia()">Compartir en Redes Sociales</button>
     </div>
 `;
 document.body.appendChild(feedbackSection);
 
-// Guardar puntuación de la aplicación
-function saveAppRating() {
-    const rating = document.getElementById("app-rating").value;
-    localStorage.setItem("appRating", rating);
-    alert("Puntuación de la aplicación guardada.");
-}
-
-// Guardar comentario sobre la aplicación
-function saveAppComment() {
-    const comment = document.getElementById("app-comment").value;
-    localStorage.setItem("appComment", comment);
-    alert("Comentario sobre la aplicación guardado.");
-}
-
 // Compartir la aplicación en redes sociales
 function shareAppOnSocialMedia() {
     const text = `¡Mira esta increíble aplicación de calendario de adviento musical!`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
-    window.open(url, "_blank");
+    const url = encodeURIComponent(window.location.href);
+    const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${url}`;
+    const twitterLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}`;
+
+    const shareOptions = `
+        <a href="${whatsappLink}" target="_blank">Compartir en WhatsApp</a>
+        <a href="${twitterLink}" target="_blank">Compartir en Twitter</a>
+    `;
+
+    const sharePopup = document.createElement("div");
+    sharePopup.className = "share-popup";
+    sharePopup.innerHTML = shareOptions;
+    document.body.appendChild(sharePopup);
 }
