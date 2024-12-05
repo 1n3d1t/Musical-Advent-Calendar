@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
         snowflake.style.left = `${Math.random() * 100}vw`;
+        snowflake.style.top = `${-Math.random() * 100}vh`; // Generar fuera de la vista
         snowflake.style.animationDuration = `${Math.random() * 5 + 3}s`; // Aumentar la duración de la animación
         snowflake.style.animationDelay = `${Math.random() * 5}s`;
         snowflake.style.width = `${Math.random() * 10 + 5}px`; // Aumentar el tamaño de los copos
