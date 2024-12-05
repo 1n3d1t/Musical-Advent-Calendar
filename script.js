@@ -60,7 +60,7 @@ async function highlightPastDays() {
                             <div class="thumbnail">
                                 <img src="${songData.album.images[0].url}" alt="Portada de ${song.name}">
                             </div>
-                            ${day}
+                            <span class="day-number">${day}</span>
                         `;
                         square.classList.add("past-day", "clicked");
                     }
@@ -81,7 +81,7 @@ for (let i = 0; i < 24; i++) {
     const day = days[i];
     const square = document.createElement("div");
     square.className = "square";
-    square.textContent = day;
+    square.innerHTML = `<span class="day-number">${day}</span>`;
     square.setAttribute("role", "gridcell");
     square.setAttribute("aria-label", `Día ${day}`);
 
@@ -98,7 +98,12 @@ for (let i = 0; i < 24; i++) {
                     }
                     showPopup(song.name, song.artist, song.link, songData.album.images[0].url);
                     square.classList.add("clicked");
-                    square.innerHTML = `<div class="thumbnail"><img src="${songData.album.images[0].url}" alt="Portada de ${song.name}"></div>${day}`;
+                    square.innerHTML = `
+                        <div class="thumbnail">
+                            <img src="${songData.album.images[0].url}" alt="Portada de ${song.name}">
+                        </div>
+                        <span class="day-number">${day}</span>
+                    `;
                 } else {
                     alert("No se encontró la canción.");
                 }
@@ -116,8 +121,27 @@ for (let i = 0; i < 24; i++) {
 // Llamar a highlightPastDays al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     await highlightPastDays();
-});
 
+    // Efecto de nieve
+    const snowContainer = document.getElementById('snow');
+
+    function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.style.left = `${Math.random() * 100}vw`;
+        snowflake.style.animationDuration = `${Math.random() * 5 + 3}s`; // Aumentar la duración de la animación
+        snowflake.style.animationDelay = `${Math.random() * 5}s`;
+        snowflake.style.width = `${Math.random() * 10 + 5}px`; // Aumentar el tamaño de los copos
+        snowflake.style.height = snowflake.style.width;
+        snowContainer.appendChild(snowflake);
+
+        setTimeout(() => {
+            snowflake.remove();
+        }, 8000); // Aumentar el tiempo de vida de los copos
+    }
+
+    setInterval(createSnowflake, 300); // Aumentar la frecuencia de creación de copos
+});
 
 // Destacar los días que ya han pasado al cargar la página
 highlightPastDays();
@@ -170,32 +194,4 @@ async function getSongData(link) {
     });
     const data = await response.json();
     return data;
-}
-
-// Funcionalidad de compartir en redes sociales
-const feedbackSection = document.createElement("div");
-feedbackSection.className = "feedback-section";
-feedbackSection.innerHTML = `
-    <div>
-        <button onclick="shareAppOnSocialMedia()">Compartir en Redes Sociales</button>
-    </div>
-`;
-document.body.appendChild(feedbackSection);
-
-// Compartir la aplicación en redes sociales
-function shareAppOnSocialMedia() {
-    const text = `¡Mira esta increíble aplicación de calendario de adviento musical!`;
-    const url = encodeURIComponent(window.location.href);
-    const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${url}`;
-    const twitterLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}`;
-
-    const shareOptions = `
-        <a href="${whatsappLink}" target="_blank">Compartir en WhatsApp</a>
-        <a href="${twitterLink}" target="_blank">Compartir en Twitter</a>
-    `;
-
-    const sharePopup = document.createElement("div");
-    sharePopup.className = "share-popup";
-    sharePopup.innerHTML = shareOptions;
-    document.body.appendChild(sharePopup);
 }
