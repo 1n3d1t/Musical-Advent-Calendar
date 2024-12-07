@@ -32,15 +32,14 @@ const songs = {
 // Crear el calendario
 const grid = document.getElementById("calendar-grid");
 
-// Generar días desordenados
+// Generar días en orden progresivo
 let days = Array.from({ length: 24 }, (_, i) => i + 1);
 
-// Recuperar el orden aleatorio desde localStorage
+// Recuperar el orden progresivo desde localStorage
 const storedOrder = localStorage.getItem("calendarOrder");
 if (storedOrder) {
     days = JSON.parse(storedOrder);
 } else {
-    days.sort(() => Math.random() - 0.5);
     localStorage.setItem("calendarOrder", JSON.stringify(days));
 }
 

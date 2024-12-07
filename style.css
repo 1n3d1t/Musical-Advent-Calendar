@@ -251,6 +251,7 @@ h1 {
     height: 100%;
     pointer-events: none;
     z-index: 1000;
+    overflow: hidden;
 }
 
 .snowflake {
@@ -263,5 +264,21 @@ h1 {
 @keyframes fall {
     to {
         transform: translateY(100vh);
+    }
+}
+
+@media (max-width: 768px) {
+    #snow {
+        overflow: visible;
+    }
+
+    .snowflake {
+        animation: fallMobile linear infinite;
+    }
+
+    @keyframes fallMobile {
+        to {
+            transform: translateY(200vh);
+        }
     }
 }
