@@ -31,23 +31,61 @@ const songs = {
 
 // Crear el calendario
 const grid = document.getElementById("calendar-grid");
-
-// Generar días en orden progresivo
 let days = Array.from({ length: 24 }, (_, i) => i + 1);
 
-// Recuperar el orden progresivo desde localStorage
-const storedOrder = localStorage.getItem("calendarOrder");
-if (storedOrder) {
-    days = JSON.parse(storedOrder);
-} else {
-    localStorage.setItem("calendarOrder", JSON.stringify(days));
+// Función para inicializar el calendario con animación y días desordenados fijos
+function initializeCalendar() {
+    grid.innerHTML = ""; // Limpia cualquier contenido previo
+    let shuffledDays = JSON.parse(localStorage.getItem("shuffledDays"));
+
+    if (!shuffledDays) {
+        shuffledDays = days.sort(() => Math.random() - 0.5); // Desordenar
+        localStorage.setItem("shuffledDays", JSON.stringify(shuffledDays));
+    }
+
+    shuffledDays.forEach((day, index) => {
+        const square = document.createElement("div");
+        square.className = "square";
+        square.innerHTML = `<span class="day-number">${day}</span>`;
+        square.setAttribute("role", "gridcell");
+        square.setAttribute("aria-label", `Día ${day}`);
+        square.style.opacity = "0"; // Inicialmente invisible
+
+        // Efecto de aparición con retraso progresivo
+        setTimeout(() => {
+            square.style.opacity = "1";
+            square.style.transition = "opacity 0.5s";
+        }, index * 200); // Retraso basado en la posición
+
+        square.addEventListener("click", async () => {
+            const currentDay = new Date().getDate();
+            if (currentDay >= day) {
+                const song = songs[day];
+                if (song) {
+                    const songData = await getSongData(song.link);
+                    if (songData) {
+                        showPopup(song.name, song.artist, song.link, songData.album.images[0].url);
+                        square.classList.add("clicked");
+                    }
+                } else {
+                    alert("No hay canción asignada a este día.");
+                }
+            } else {
+                alert("¡No puedes abrir este día todavía!");
+            }
+        });
+
+        grid.appendChild(square);
+    });
 }
 
-// Función para destacar los días que ya han pasado
+// Función para destacar días pasados
 async function highlightPastDays() {
     const currentDay = new Date().getDate();
+    const shuffledDays = JSON.parse(localStorage.getItem("shuffledDays")) || days;
+
     for (let i = 0; i < 24; i++) {
-        const day = days[i];
+        const day = shuffledDays[i];
         const square = grid.children[i];
         if (day < currentDay) {
             const song = songs[day];
@@ -66,96 +104,22 @@ async function highlightPastDays() {
                 } catch (error) {
                     console.error(`Error fetching song data for day ${day}:`, error);
                     square.classList.add("past-day");
-                    square.style.color = "white";
                 }
             } else {
                 square.classList.add("past-day");
-                square.style.color = "white";
             }
         }
     }
 }
-
-for (let i = 0; i < 24; i++) {
-    const day = days[i];
-    const square = document.createElement("div");
-    square.className = "square";
-    square.innerHTML = `<span class="day-number">${day}</span>`;
-    square.setAttribute("role", "gridcell");
-    square.setAttribute("aria-label", `Día ${day}`);
-
-    square.addEventListener("click", async () => {
-        if (new Date().getDate() >= day) {
-            const song = songs[day];
-            if (song) {
-                const songData = await getSongData(song.link);
-                if (songData) {
-                    // Cerrar ventana emergente existente
-                    const existingPopup = document.querySelector(".popup");
-                    if (existingPopup) {
-                        document.body.removeChild(existingPopup);
-                    }
-                    showPopup(song.name, song.artist, song.link, songData.album.images[0].url);
-                    square.classList.add("clicked");
-                    square.innerHTML = `
-                        <div class="thumbnail">
-                            <img src="${songData.album.images[0].url}" alt="Portada de ${song.name}">
-                        </div>
-                        <span class="day-number">${day}</span>
-                    `;
-                } else {
-                    alert("No se encontró la canción.");
-                }
-            } else {
-                alert("No hay canción asignada a este día.");
-            }
-        } else {
-            alert("¡No puedes abrir este día todavía!");
-        }
-    });
-
-    grid.appendChild(square);
-}
-
-// Llamar a highlightPastDays al cargar la página
-document.addEventListener('DOMContentLoaded', async () => {
-    await highlightPastDays();
-
-    // Efecto de nieve
-    const snowContainer = document.getElementById('snow');
-
-    function createSnowflake() {
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        snowflake.style.left = `${Math.random() * 100}vw`;
-        snowflake.style.top = `${-Math.random() * 100}vh`; // Generar fuera de la vista
-        snowflake.style.animationDuration = `${Math.random() * 5 + 3}s`; // Aumentar la duración de la animación
-        snowflake.style.animationDelay = `${Math.random() * 5}s`;
-        snowflake.style.width = `${Math.random() * 10 + 5}px`; // Aumentar el tamaño de los copos
-        snowflake.style.height = snowflake.style.width;
-        snowContainer.appendChild(snowflake);
-
-        setTimeout(() => {
-            snowflake.remove();
-        }, 8000); // Aumentar el tiempo de vida de los copos
-    }
-
-    setInterval(createSnowflake, 300); // Aumentar la frecuencia de creación de copos
-});
-
-// Destacar los días que ya han pasado al cargar la página
-highlightPastDays();
 
 // Mostrar ventana emergente
 function showPopup(songName, artist, songLink, songImage) {
     const popup = document.createElement("div");
     popup.className = "popup";
     popup.setAttribute("role", "dialog");
-    popup.setAttribute("aria-labelledby", "popup-title");
-    popup.setAttribute("aria-describedby", "popup-description");
     popup.innerHTML = `
         <img src="${songImage}" alt="Portada de ${songName}">
-        <p id="popup-title">${songName} - ${artist}</p>
+        <p>${songName} - ${artist}</p>
         <a href="${songLink}" target="_blank" style="text-decoration: none; color: blue;">Escuchar en Spotify</a>
         <button onclick="document.body.removeChild(this.parentNode)">Cerrar</button>
     `;
@@ -195,3 +159,29 @@ async function getSongData(link) {
     const data = await response.json();
     return data;
 }
+
+// Efecto de nieve
+function createSnowflake() {
+    const snowflake = document.createElement('div');
+    snowflake.className = 'snowflake';
+    snowflake.style.left = `${Math.random() * 100}vw`;
+    snowflake.style.top = `-${Math.random() * 100}vh`; // Generar fuera de la vista
+    snowflake.style.animationDuration = `${Math.random() * 5 + 3}s`;
+    snowflake.style.animationDelay = `${Math.random() * 5}s`;
+    snowflake.style.width = `${Math.random() * 10 + 5}px`;
+    snowflake.style.height = snowflake.style.width;
+    document.getElementById('snow').appendChild(snowflake);
+
+    setTimeout(() => {
+        snowflake.remove();
+    }, 8000); // Tiempo de vida de los copos
+}
+
+// Inicializar todo al cargar
+document.addEventListener('DOMContentLoaded', async () => {
+    initializeCalendar();
+    await highlightPastDays();
+
+    // Crear efecto de nieve
+    setInterval(createSnowflake, 300);
+});

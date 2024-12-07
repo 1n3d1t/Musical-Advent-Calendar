@@ -55,6 +55,8 @@ h1 {
     transition: transform 0.2s, background-color 0.2s;
     position: relative;
     overflow: hidden;
+    opacity: 0; /* Inicialmente ocultos */
+    transition: opacity 0.5s;
 }
 
 .square:hover {
@@ -86,13 +88,13 @@ h1 {
 
 /* Estilos para días pasados */
 .square.past-day {
-    background-color: #b22222; /* Color más oscuro */
-    color: white; /* Número en blanco */
-    font-size: 24px; /* Aumentar el tamaño del número */
+    background-color: #b22222;
+    color: white;
+    font-size: 24px;
 }
 
 .square.past-day .thumbnail img {
-    opacity: 0.7; /* Hacer la imagen un poco transparente para los días pasados */
+    opacity: 0.7;
 }
 
 .square.past-day .day-number {
@@ -105,22 +107,12 @@ h1 {
     z-index: 2;
 }
 
-/* Animación sencilla */
 .square.clicked {
     animation: shake 0.5s, glow 1s infinite alternate;
 }
 
 @keyframes shake {
     0% { transform: translate(1px, 1px) rotate(0deg); }
-    10% { transform: translate(-1px, -2px) rotate(-1deg); }
-    20% { transform: translate(-3px, 0px) rotate(1deg); }
-    30% { transform: translate(3px, 2px) rotate(0deg); }
-    40% { transform: translate(1px, -1px) rotate(1deg); }
-    50% { transform: translate(-1px, 2px) rotate(-1deg); }
-    60% { transform: translate(-3px, 1px) rotate(0deg); }
-    70% { transform: translate(3px, 1px) rotate(-1deg); }
-    80% { transform: translate(-1px, -1px) rotate(1deg); }
-    90% { transform: translate(1px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
@@ -129,7 +121,6 @@ h1 {
     to { box-shadow: 0 0 20px #ff6666; }
 }
 
-/* Ventana emergente */
 .popup {
     position: fixed;
     top: 50%;
@@ -152,103 +143,23 @@ h1 {
 .popup button {
     margin-top: 10px;
     padding: 5px 10px;
-    cursor: pointer;
     background: #ff6666;
     color: white;
     border: none;
     border-radius: 5px;
-    transition: background 0.3s;
 }
 
 .popup button:hover {
     background: #b22222;
 }
 
-/* Estilos para días pasados */
-.square.past-day {
-    background-color: #b22222; /* Color más oscuro */
-    color: white; /* Número en blanco */
-}
-
-/* Sección de feedback */
-.feedback-section {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.feedback-section button {
-    padding: 5px 10px;
-    cursor: pointer;
-    background: #ff6666;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-.feedback-section button:hover {
-    background: #b22222;
-}
-
-/* Ventana emergente de compartir */
-.share-popup {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-}
-
-.share-popup a {
-    display: block;
-    margin-bottom: 5px;
-    color: #ff6666;
-    text-decoration: none;
-}
-
-.share-popup a:hover {
-    text-decoration: underline;
-}
-
-/* Añadir estilos para los iconos de redes sociales */
-.social-icons {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.social-icons a {
-    margin: 5px 0;
-    font-size: 24px;
-    color: #ff6666; /* Cambiar el color de los iconos */
-    transition: color 0.3s;
-}
-
-.social-icons a:hover {
-    color: #b22222; /* Cambiar el color al pasar el mouse */
-}
-
-/* Estilos específicos para el icono de WhatsApp */
-.social-icons a .fa-whatsapp {
-    color: #25D366; /* Color verde oficial de WhatsApp */
-}
-
-/* Estilos para el efecto de nieve */
+/* Efecto de nieve */
 #snow {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
     z-index: 1000;
     overflow: hidden;
@@ -267,18 +178,23 @@ h1 {
     }
 }
 
-@media (max-width: 768px) {
-    #snow {
-        overflow: visible;
-    }
+/* Icono de WhatsApp */
+.social-icons {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-    .snowflake {
-        animation: fallMobile linear infinite;
-    }
+.social-icons a {
+    margin: 5px 0;
+    font-size: 24px;
+    color: #25D366; /* Color verde oficial de WhatsApp */
+    transition: color 0.3s;
+}
 
-    @keyframes fallMobile {
-        to {
-            transform: translateY(200vh);
-        }
-    }
+.social-icons a:hover {
+    color: #b22222;
 }
