@@ -198,3 +198,29 @@ h1 {
 .social-icons a:hover {
     color: #b22222;
 }
+
+/* Estilos para el enlace de la playlist */
+.playlist-link {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.playlist-link a {
+    color: #ff6666;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.playlist-link a:hover {
+    color: #b22222;
+    text-decoration: underline;
+}
+
+.christmas-message {
+    font-size: 1.5em;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    margin-top: 10px;
+}
